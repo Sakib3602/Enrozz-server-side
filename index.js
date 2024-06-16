@@ -47,7 +47,12 @@ async function run() {
     // user Data save to db
     app.post("/userData", async (req, res) => {
       const doc = req.body;
-      console.log(doc)
+      console.log(doc.email)
+      const query = {email : doc.email}
+      const isHere = await userDB.findOne(query);
+      if(isHere) {
+        return res.send("email is already exist")
+      }
       const result = await userDB.insertOne(doc);
       res.send(result);
     });; 
