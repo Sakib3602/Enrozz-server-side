@@ -28,6 +28,8 @@ async function run() {
 
     const sliderDB = client.db("Enrozzz").collection("sliderData");
     const userDB = client.db("Enrozzz").collection("userData");
+    const postsDB = client.db("Enrozzz").collection("posts");
+    const cartDB = client.db("Enrozzz").collection("carts");
 
     // slider all data get
     app.get("/slider", async (req, res) => {
@@ -56,6 +58,34 @@ async function run() {
       const result = await userDB.insertOne(doc);
       res.send(result);
     });; 
+
+    // products
+    app.get("/products", async (req, res) => {
+      const result = await postsDB.find().toArray()
+      res.send(result);
+    })
+    app.get("/productsDetails/:id", async (req, res) => {
+      const id = req.params.id;
+
+      const query = { _id : new ObjectId(id) };
+      const result = await postsDB.findOne(query)
+      res.send(result);
+    })
+
+
+    // carts
+    app.post("/carts", async(req,res)=>{
+      const doc = req.body;
+      const result = await cartDB.insertOne(doc);
+      res.send(result);
+    })
+
+    app.get("/cartTable/:email", async(req,res)=>{
+      const doc = req.params.email;
+      const query = {email : doc};
+      const result = await cartDB.find(query).toArray();
+      res.send(result);
+    })
 
 
 
