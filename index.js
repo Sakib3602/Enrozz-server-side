@@ -86,6 +86,12 @@ async function run() {
       const result = await cartDB.find(query).toArray();
       res.send(result);
     })
+    app.delete("/cartTable/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id : new ObjectId(id) };
+      const result = await cartDB.deleteOne(query);
+      res.send(result);
+    })
 
 
 
