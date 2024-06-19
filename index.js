@@ -46,6 +46,27 @@ async function run() {
     });
     // slider single data get end
 
+    // update userdata
+
+    app.patch("/userDataUpdate/:email", async(req,res)=>{
+      const email = req.params.email;
+      console.log(email)
+      const doc = req.body;
+      console.log(doc)
+      const query = {email : email}
+      const updateData = {
+        $set : {
+          name : doc.name,
+          image : doc.image
+        }
+      }
+
+      const result = await userDB.updateOne(query,updateData);
+      res.send(result);
+
+    })
+    // update userdata
+
     // user Data save to db
     app.post("/userData", async (req, res) => {
       const doc = req.body;
@@ -93,7 +114,24 @@ async function run() {
       res.send(result);
     })
 
+    app.get("/length/:email", async(req, res) => {
+      const email = req.params.email;
+      
+      const query = {email : email}
+      const cartLength = await cartDB.countDocuments(query);
+    res.send({ cartLength })
+    })
 
+
+    // single user dATA
+
+    app.get("/usersingleData/:email", async(req, res) => {
+      const email = req.params.email;
+      console.log(email)
+      const query = {email : email}
+      const result = await userDB.findOne(query);
+      res.send(result);
+    })
 
 
 
