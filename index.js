@@ -82,7 +82,22 @@ async function run() {
 
     // products
     app.get("/products", async (req, res) => {
-      const result = await postsDB.find().toArray()
+
+      console.log(req.query)
+      const filter = req.query;
+      const query = {
+        title : {$regex : filter.search  , $options : "i"}
+      }; 
+
+
+      // Handle sorting
+      const options = {
+          sort: {
+              price: filter.sort === "asc" ? 1 : -1
+          }
+      };
+
+      const result = await postsDB.find(query, options).toArray();
       res.send(result);
     })
     app.get("/productsDetails/:id", async (req, res) => {
