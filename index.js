@@ -4,11 +4,15 @@ const port = process.env.PORT || 3000;
 const cors = require("cors");
 app.use(cors());
 app.use(express.json())
+// urlencoded
+app.use(express.urlencoded({ extended: true }));
+
 require("dotenv").config();
 
 //
 
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+const { default: axios } = require("axios");
 const uri = `mongodb+srv://${process.env.DB_NAME}:${process.env.DB_PASS}@cluster0.b5jufhp.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -147,6 +151,111 @@ async function run() {
       const result = await userDB.findOne(query);
       res.send(result);
     })
+
+
+
+
+
+
+
+
+
+    // ssl commerce
+
+    app.post("/create-payment", async (req, res) => {
+
+      const body = req.body;
+      console.log(body,"from now");
+
+      const paymentData = {
+        store_id: "testbox",
+        store_passwd: "qwerty",
+        total_amount: 100,
+        currency: "USD",
+        tran_id: "REF123",
+        success_url: "http://localhost:3000/success-payment",
+        fail_url: "http://yoursite.com/fail.php",
+        cancel_url: "http://yoursite.com/cancel.php",
+        product_name: "Namedvbf",
+        product_category: "nbbiihi",
+        product_profile: "ujgugiugh",
+        cus_name: body.name,
+        cus_email: body.email,
+        cus_add1: body.address,
+        cus_add2: "",
+        cus_city: " ",
+        cus_state: " ",
+        cus_postcode: " ",
+        cus_country: "Bangladesh",
+        cus_phone: body.phone,
+        cus_fax: "01711111111",
+        shipping_method: "YES",
+        ship_city: " ",
+        ship_name: body.name,
+        ship_add1: body.deleveryPlace,
+        ship_add2: " ",
+        ship_state: " ",
+        ship_postcode: "1000",
+        ship_country: "Bangladesh",
+        multi_card_name: "mastercard,visacard,amexcard",
+        value_a: "ref001_A",
+        value_b: "ref002_B",
+        value_c: "ref003_C",
+        value_d: "ref004_D"
+    };
+
+
+    const response = await axios(" https://sandbox.sslcommerz.com/gwprocess/v4/api.php",{
+      method : "POST",
+      data : paymentData,
+      headers : {
+        "Content-Type" : "application/x-www-form-urlencoded"
+      }
+    })
+
+
+    // console.log(response)
+
+    res.send({
+      paymentUrl : response.data.GatewayPageURL
+    })
+    
+
+    })
+
+
+
+
+    app.post("/success-payment", async(req,res)=>{
+
+      const successData = req.body;
+      console.log("success Data",successData)
+
+      // res.redirect("http://localhost:5173/");
+      
+    })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
