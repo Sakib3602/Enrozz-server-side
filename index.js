@@ -168,14 +168,14 @@ async function run() {
       console.log(body,"from now");
 
       const paymentData = {
-        store_id: "testbox",
-        store_passwd: "qwerty",
+        store_id: process.env.SSL_ID,
+        store_passwd: process.env.SSL_PASS,
         total_amount: 100,
         currency: "USD",
         tran_id: "REF123",
         success_url: "http://localhost:3000/success-payment",
-        fail_url: "http://yoursite.com/fail.php",
-        cancel_url: "http://yoursite.com/cancel.php",
+        fail_url:  "http://localhost:3000/fail",
+        cancel_url: "http://localhost:3000/cancel",
         product_name: "Namedvbf",
         product_category: "nbbiihi",
         product_profile: "ujgugiugh",
@@ -231,7 +231,23 @@ async function run() {
       const successData = req.body;
       console.log("success Data",successData)
 
-      // res.redirect("http://localhost:5173/");
+      res.redirect("http://localhost:5173/succes");
+      
+    })
+    app.post("/fail", async(req,res)=>{
+
+      const successData = req.body;
+      console.log("success Data",successData)
+
+      res.redirect("http://localhost:5173/fail");
+      
+    })
+    app.post("/cancel", async(req,res)=>{
+
+      const successData = req.body;
+      console.log("success Data",successData)
+
+      res.redirect("http://localhost:5173/cancel");
       
     })
 
