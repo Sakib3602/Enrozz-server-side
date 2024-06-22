@@ -3,7 +3,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 const cors = require("cors");
 app.use(cors());
-app.use(express.json())
+app.use(express.json());
 // urlencoded
 app.use(express.urlencoded({ extended: true }));
 
@@ -34,6 +34,7 @@ async function run() {
     const userDB = client.db("Enrozzz").collection("userData");
     const postsDB = client.db("Enrozzz").collection("posts");
     const cartDB = client.db("Enrozzz").collection("carts");
+    const orderDB = client.db("Enrozzz").collection("order");
 
     // slider all data get
     app.get("/slider", async (req, res) => {
@@ -52,129 +53,129 @@ async function run() {
 
     // update userdata
 
-    app.patch("/userDataUpdate/:email", async(req,res)=>{
+    app.patch("/userDataUpdate/:email", async (req, res) => {
       const email = req.params.email;
-      console.log(email)
+      console.log(email);
       const doc = req.body;
-      console.log(doc)
-      const query = {email : email}
+      console.log(doc);
+      const query = { email: email };
       const updateData = {
-        $set : {
-          name : doc.name,
-          image : doc.image
-        }
-      }
+        $set: {
+          name: doc.name,
+          image: doc.image,
+        },
+      };
 
-      const result = await userDB.updateOne(query,updateData);
+      const result = await userDB.updateOne(query, updateData);
       res.send(result);
-
-    })
+    });
     // update userdata
 
     // user Data save to db
     app.post("/userData", async (req, res) => {
       const doc = req.body;
-      console.log(doc.email)
-      const query = {email : doc.email}
+      console.log(doc.email);
+      const query = { email: doc.email };
       const isHere = await userDB.findOne(query);
-      if(isHere) {
-        return res.send("email is already exist")
+      if (isHere) {
+        return res.send("email is already exist");
       }
       const result = await userDB.insertOne(doc);
       res.send(result);
-    });; 
+    });
 
     // products
     app.get("/products", async (req, res) => {
-
-      console.log(req.query)
+      console.log(req.query);
       const filter = req.query;
       const query = {
-        title : {$regex : filter.search  , $options : "i"}
-      }; 
-
+        title: { $regex: filter.search, $options: "i" },
+      };
 
       // Handle sorting
       const options = {
-          sort: {
-              price: filter.sort === "asc" ? 1 : -1
-          }
+        sort: {
+          price: filter.sort === "asc" ? 1 : -1,
+        },
       };
 
       const result = await postsDB.find(query, options).toArray();
       res.send(result);
-    })
+    });
     app.get("/productsDetails/:id", async (req, res) => {
       const id = req.params.id;
 
-      const query = { _id : new ObjectId(id) };
-      const result = await postsDB.findOne(query)
+      const query = { _id: new ObjectId(id) };
+      const result = await postsDB.findOne(query);
       res.send(result);
-    })
-
+    });
 
     // carts
-    app.post("/carts", async(req,res)=>{
+    app.post("/carts", async (req, res) => {
       const doc = req.body;
       const result = await cartDB.insertOne(doc);
       res.send(result);
-    })
+    });
 
-    app.get("/cartTable/:email", async(req,res)=>{
+    app.get("/cartTable/:email", async (req, res) => {
       const doc = req.params.email;
-      const query = {email : doc};
+      const query = { email: doc };
       const result = await cartDB.find(query).toArray();
       res.send(result);
-    })
+    });
     app.delete("/cartTable/:id", async (req, res) => {
       const id = req.params.id;
-      const query = { _id : new ObjectId(id) };
+      const query = { _id: new ObjectId(id) };
       const result = await cartDB.deleteOne(query);
       res.send(result);
-    })
+    });
 
-    app.get("/length/:email", async(req, res) => {
+    app.get("/length/:email", async (req, res) => {
       const email = req.params.email;
-      
-      const query = {email : email}
-      const cartLength = await cartDB.countDocuments(query);
-    res.send({ cartLength })
-    })
 
+      const query = { email: email };
+      const cartLength = await cartDB.countDocuments(query);
+      res.send({ cartLength });
+    });
 
     // single user dATA
 
-    app.get("/usersingleData/:email", async(req, res) => {
+    app.get("/usersingleData/:email", async (req, res) => {
       const email = req.params.email;
-      console.log(email)
-      const query = {email : email}
+      console.log(email);
+      const query = { email: email };
       const result = await userDB.findOne(query);
       res.send(result);
-    })
-
-
-
-
-
-
-
-
+    });
 
     // ssl commerce
 
     app.post("/create-payment", async (req, res) => {
-
       const body = req.body;
-      console.log(body,"from now");
+      console.log(body, "from now");
+
+      const tranId = Math.random().toString(36).substring(2, 15)
+
+      const orderData = {
+        tranId: tranId,
+        price: body.price,
+        product: body.product_name,
+        userName: body.name,
+        phone: body.phone,
+        address: body.address,
+        deleveryPlace: body.deleveryPlace,
+        payment: "pending",
+      };
+
 
       const paymentData = {
         store_id: process.env.SSL_ID,
         store_passwd: process.env.SSL_PASS,
-        total_amount: 100,
+        total_amount: body.price,
         currency: "USD",
-        tran_id: "REF123",
+        tran_id: tranId,
         success_url: "http://localhost:3000/success-payment",
-        fail_url:  "http://localhost:3000/fail",
+        fail_url: "http://localhost:3000/fail",
         cancel_url: "http://localhost:3000/cancel",
         product_name: "Namedvbf",
         product_category: "nbbiihi",
@@ -201,86 +202,62 @@ async function run() {
         value_a: "ref001_A",
         value_b: "ref002_B",
         value_c: "ref003_C",
-        value_d: "ref004_D"
-    };
+        value_d: "ref004_D",
+      };
 
+      const response = await axios(
+        " https://sandbox.sslcommerz.com/gwprocess/v4/api.php",
+        {
+          method: "POST",
+          data: paymentData,
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+        }
+      );
 
-    const response = await axios(" https://sandbox.sslcommerz.com/gwprocess/v4/api.php",{
-      method : "POST",
-      data : paymentData,
-      headers : {
-        "Content-Type" : "application/x-www-form-urlencoded"
+      const result = await orderDB.insertOne(orderData);
+      if (result) {
+        res.send({
+          paymentUrl: response.data.GatewayPageURL,
+        });
       }
-    })
-
-
-    // console.log(response)
-
-    res.send({
-      paymentUrl : response.data.GatewayPageURL
-    })
-    
-
-    })
+    });
 
 
 
-
-    app.post("/success-payment", async(req,res)=>{
-
+    app.post("/success-payment", async (req, res) => {
       const successData = req.body;
-      console.log("success Data",successData)
+      if(successData.status !== "VALID"){
+        throw new Error("Unauthorized access", {status : 401})
+      }
 
-      res.redirect("http://localhost:5173/succes");
-      
-    })
-    app.post("/fail", async(req,res)=>{
+      const query = { tranId: successData.tran_id };
+      const updateData = {
+        $set: {
+          payment: "success",
+        },
+      }
 
+      const result = await orderDB.updateOne(query, updateData);
+      if(result){
+        res.redirect("http://localhost:5173/succes");
+
+      }
+
+    });
+    app.post("/fail", async (req, res) => {
       const successData = req.body;
-      console.log("success Data",successData)
+      console.log("success Data", successData);
 
       res.redirect("http://localhost:5173/fail");
-      
-    })
-    app.post("/cancel", async(req,res)=>{
-
+    });
+    app.post("/cancel", async (req, res) => {
       const successData = req.body;
-      console.log("success Data",successData)
+      console.log("success Data", successData);
 
       res.redirect("http://localhost:5173/cancel");
-      
-    })
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    });
 
     // await client.db("admin").command({ ping: 1 });
     console.log(
