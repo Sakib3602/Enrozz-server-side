@@ -35,6 +35,7 @@ async function run() {
     const postsDB = client.db("Enrozzz").collection("posts");
     const cartDB = client.db("Enrozzz").collection("carts");
     const orderDB = client.db("Enrozzz").collection("order");
+    const reviewDB = client.db("Enrozzz").collection("review");
 
     // slider all data get
     app.get("/slider", async (req, res) => {
@@ -83,6 +84,12 @@ async function run() {
       const result = await userDB.insertOne(doc);
       res.send(result);
     });
+
+    app.get("/userDataAdmin", async(req,res)=>{
+      const result = await userDB.find().toArray();
+      res.send(result);
+
+    })
 
     // products
     app.get("/products", async (req, res) => {
@@ -147,6 +154,42 @@ async function run() {
       const result = await userDB.findOne(query);
       res.send(result);
     });
+    // review
+    app.post("/reviews", async (req, res) => {
+      const body = req.body
+      const result = await reviewDB.insertOne(body);
+      res.send(result);
+    })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     // ssl commerce
 
