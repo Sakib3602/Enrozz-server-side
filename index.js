@@ -37,6 +37,20 @@ async function run() {
     const orderDB = client.db("Enrozzz").collection("order");
     const reviewDB = client.db("Enrozzz").collection("review");
 
+    // app total
+    app.get("/total", async (req, res)=>{
+      const totalUser = await userDB.estimatedDocumentCount()
+      const totalPosts = await postsDB.estimatedDocumentCount()
+      const totalCart = await cartDB.estimatedDocumentCount()
+      const totalorder = await orderDB.estimatedDocumentCount()
+
+
+
+      // console.log(totalUser , totalPosts , totalCart , totalorder)
+      res.send({totalUser, totalPosts, totalCart, totalorder})
+    })
+    // app total
+
     // slider all data get
     app.get("/slider", async (req, res) => {
       const sliderData = await sliderDB.find().toArray();
@@ -265,6 +279,21 @@ async function run() {
 
       res.redirect("http://localhost:5173/cancel");
     });
+
+
+
+    app.patch("/upOrder/:id", async (req, res) => {
+      const body = req.params.id;
+      const query = { _id : new ObjectId(body)  };
+      const updateData = {
+        $set: {
+          userName: "DONE",
+        },
+      };
+
+      const result = await orderDB.updateOne(query, updateData)
+      res.send(result);
+    })
 
 
     // 
