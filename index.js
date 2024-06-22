@@ -85,11 +85,10 @@ async function run() {
       res.send(result);
     });
 
-    app.get("/userDataAdmin", async(req,res)=>{
+    app.get("/userDataAdmin", async (req, res) => {
       const result = await userDB.find().toArray();
       res.send(result);
-
-    })
+    });
 
     // products
     app.get("/products", async (req, res) => {
@@ -156,40 +155,10 @@ async function run() {
     });
     // review
     app.post("/reviews", async (req, res) => {
-      const body = req.body
+      const body = req.body;
       const result = await reviewDB.insertOne(body);
       res.send(result);
-    })
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    });
 
     // ssl commerce
 
@@ -197,7 +166,7 @@ async function run() {
       const body = req.body;
       console.log(body, "from now");
 
-      const tranId = Math.random().toString(36).substring(2, 15)
+      const tranId = Math.random().toString(36).substring(2, 15);
 
       const orderData = {
         tranId: tranId,
@@ -209,7 +178,6 @@ async function run() {
         deleveryPlace: body.deleveryPlace,
         payment: "pending",
       };
-
 
       const paymentData = {
         store_id: process.env.SSL_ID,
@@ -267,12 +235,10 @@ async function run() {
       }
     });
 
-
-
     app.post("/success-payment", async (req, res) => {
       const successData = req.body;
-      if(successData.status !== "VALID"){
-        throw new Error("Unauthorized access", {status : 401})
+      if (successData.status !== "VALID") {
+        throw new Error("Unauthorized access", { status: 401 });
       }
 
       const query = { tranId: successData.tran_id };
@@ -280,14 +246,12 @@ async function run() {
         $set: {
           payment: "success",
         },
-      }
+      };
 
       const result = await orderDB.updateOne(query, updateData);
-      if(result){
+      if (result) {
         res.redirect("http://localhost:5173/succes");
-
       }
-
     });
     app.post("/fail", async (req, res) => {
       const successData = req.body;
@@ -301,6 +265,39 @@ async function run() {
 
       res.redirect("http://localhost:5173/cancel");
     });
+
+
+    // 
+    app.get("/ordersAllForAdmin", async (req, res) => {
+      const result = await orderDB.find().toArray();
+      res.send(result);
+    })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     // await client.db("admin").command({ ping: 1 });
     console.log(
